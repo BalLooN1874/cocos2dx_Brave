@@ -16,7 +16,14 @@ public:
 	};
 public:
 	bool iniWithPlayerTyer(PlayerType type);
-
 	static CPlayer* create(PlayerType type);
+	void addAnimation();
+	void PlayAnimationForever(int index);
+private:
+	PlayerType							m_type;
+	std::string								m_name;
+	int										m_animationNum;
+	std::vector<int>					m_anmationFrameNum;
+	std::vector<std::string>			m_animationNames;
 };
 

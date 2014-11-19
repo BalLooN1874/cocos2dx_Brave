@@ -36,13 +36,19 @@ bool HelloWorld::init()
 
 	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("image/role.plist", "image/role.pvr.ccz");
 
+	//add player 
 	CPlayer* player = CPlayer::create(CPlayer::PlayerType::PLAYER);
 	player->setPosition(origin.x + player->getContentSize().width / 2, origin.y + visibleSize.height / 2);
 	this->addChild(player);
 
+	//add enemy1
 	CPlayer* enemy1 = CPlayer::create(CPlayer::PlayerType::ENEMY_2);
 	enemy1->setPosition(origin.x + visibleSize.width - player->getContentSize().width / 2, origin.y + visibleSize.height /2);
 	this->addChild(enemy1);
+
+	//test animation 
+	player->PlayAnimationForever(1);
+	enemy1->PlayAnimationForever(1);
 	return true;
 #if 0
     /////////////////////////////
