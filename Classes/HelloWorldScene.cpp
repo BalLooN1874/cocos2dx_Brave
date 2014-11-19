@@ -30,6 +30,21 @@ bool HelloWorld::init()
     Size visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
+	auto background = Sprite::create("image/background.png");
+	background->setPosition(origin + visibleSize / 2);
+	this->addChild(background);
+
+	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("image/role.plist", "image/role.pvr.ccz");
+
+	CPlayer* player = CPlayer::create(CPlayer::PlayerType::PLAYER);
+	player->setPosition(origin.x + player->getContentSize().width / 2, origin.y + visibleSize.height / 2);
+	this->addChild(player);
+
+	CPlayer* enemy1 = CPlayer::create(CPlayer::PlayerType::ENEMY_2);
+	enemy1->setPosition(origin.x + visibleSize.width - player->getContentSize().width / 2, origin.y + visibleSize.height /2);
+	this->addChild(enemy1);
+	return true;
+#if 0
     /////////////////////////////
     // 2. add a menu item with "X" image, which is clicked to quit the program
     //    you may modify it.
@@ -71,8 +86,8 @@ bool HelloWorld::init()
 
     // add the sprite as a child to this layer
     this->addChild(sprite, 0);
-    
-    return true;
+#endif
+  
 }
 
 
