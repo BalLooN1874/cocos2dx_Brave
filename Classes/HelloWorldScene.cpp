@@ -37,18 +37,22 @@ bool HelloWorld::init()
 	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("image/role.plist", "image/role.pvr.ccz");
 
 	//add player 
-	CPlayer* player = CPlayer::create(CPlayer::PlayerType::PLAYER);
-	player->setPosition(origin.x + player->getContentSize().width / 2, origin.y + visibleSize.height / 2);
-	this->addChild(player);
+	m_player = CPlayer::create(CPlayer::PlayerType::PLAYER);
+	m_player->setPosition(origin.x + m_player->getContentSize().width / 2, origin.y + visibleSize.height / 2);
+	this->addChild(m_player);
 
 	//add enemy1
 	CPlayer* enemy1 = CPlayer::create(CPlayer::PlayerType::ENEMY_2);
-	enemy1->setPosition(origin.x + visibleSize.width - player->getContentSize().width / 2, origin.y + visibleSize.height /2);
+	enemy1->setPosition(origin.x + visibleSize.width - m_player->getContentSize().width / 2, origin.y + visibleSize.height / 2);
 	this->addChild(enemy1);
 
 	//test animation 
-	player->PlayAnimationForever(1);
-	enemy1->PlayAnimationForever(1);
+	//player->PlayAnimationForever(1);
+	//enemy1->PlayAnimationForever(1);
+
+	m_listener_touch = EventListenerTouchOneByOne::create();
+	m_listener_touch->onTouchBegan = CC_CALLBACK_2(HelloWorld::onTouchBegan,this);
+	_eventDispatcher->addEventListenerWithSceneGraphPriority(m_listener_touch,this);
 	return true;
 #if 0
     /////////////////////////////
@@ -95,7 +99,12 @@ bool HelloWorld::init()
 #endif
   
 }
-
+bool HelloWorld::onTouchBegan(Touch *touch, Event *unused_event)
+{
+	auto& pos = this->convertToNodeSpace(touch->getLocation()); 
+	m_player->walkTo(pos);
+	return true;
+}
 
 void HelloWorld::menuCloseCallback(Ref* pSender)
 {

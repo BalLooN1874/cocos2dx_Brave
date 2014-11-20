@@ -1,13 +1,18 @@
 #include "Player.h"
 
 
-CPlayer::CPlayer()
+CPlayer::CPlayer() : m_seq(nullptr), m_speed(100)
 {
 }
 
 
 CPlayer::~CPlayer()
 {
+	if (m_ptrInstance)
+	{
+		delete m_ptrInstance;
+		m_ptrInstance = nullptr;
+	}
 }
 
 
@@ -97,4 +102,43 @@ CPlayer* CPlayer::create(PlayerType type)
 		ptrPlayer = NULL;
 		return NULL;
 	}
+}
+void CPlayer::walkTo(cocos2d::Vec2& dest)
+{
+	//stop current moving action, if any
+	if (m_seq)
+	{
+		this->stopAction(m_seq);
+	}
+	auto& curPos = this->getPosition();
+	//flip when moving backward
+	if (curPos.x > dest.x)
+		this->setFlippedX(true);
+	else
+		this->setFlippedX(false);
+	
+	//calculate the time needed to move
+	auto& diff = dest - curPos;
+	auto time = diff.getLength() / m_speed;
+	auto move = MoveTo::create(time, dest);
+	//lambda function
+	auto func = [&]()
+	{
+		this->stopAllActions();
+		m_seq = nullptr;
+	};
+	auto callback = CallFunc::create(func);
+	m_seq = Sequence::create(move, callback, nullptr);
+	this->runAction(m_seq);
+	this->PlayAnimationForever(0);
+}
+
+CPlayer* CPlayer::m_ptrInstance = NULL;
+CPlayer* CPlayer::getInstance()
+{
+	if (NULL == m_ptrInstance)
+	{
+		m_ptrInstance = new CPlayer();
+	}
+	return m_ptrInstance;
 }

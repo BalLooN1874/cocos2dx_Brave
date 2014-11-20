@@ -17,6 +17,11 @@ public:
     
     // implement the "static create()" method manually
     CREATE_FUNC(HelloWorld);
+
+	bool onTouchBegan(Touch *touch, Event *unused_event);
+private:
+	EventListenerTouchOneByOne* m_listener_touch;
+	CPlayer	*									m_player;
 };
 
 #endif // __HELLOWORLD_SCENE_H__
