@@ -53,6 +53,7 @@ bool HelloWorld::init()
 	m_listener_touch = EventListenerTouchOneByOne::create();
 	m_listener_touch->onTouchBegan = CC_CALLBACK_2(HelloWorld::onTouchBegan,this);
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(m_listener_touch,this);
+
 	return true;
 #if 0
     /////////////////////////////

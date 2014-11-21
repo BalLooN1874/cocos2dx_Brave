@@ -1,6 +1,5 @@
 #include "FSM.h"
 
-
 CFSM::CFSM(std::string& state, std::function<void()> onEnter)
 {
 	m_currentState = state;
@@ -27,12 +26,12 @@ CFSM* CFSM::create(std::string& state, std::function<void()> onEnter)
 //add state into FSM
 CFSM* CFSM::addState(std::string& state, std::function<void()> onEnter)
 {
-	if (!state.empty())
+	if (state.empty())
 	{
 		cocos2d::log("FSM:: [addState]: state can't be empty string");
 		return nullptr;
 	}
-	m_states.insert(std::move(state));
+	m_states.insert(state);
 	m_onEnters[state] = onEnter;
 	return this;
 }
@@ -40,7 +39,7 @@ CFSM* CFSM::addState(std::string& state, std::function<void()> onEnter)
 //add Event into  FSM
 CFSM* CFSM::addEvent(const std::string& eventName, const std::string& from, const std::string& to)
 {
-	if (!eventName.empty())
+	if (eventName.empty())
 	{
 		cocos2d::log("FSM::addEvent: event can't be empty");
 		return nullptr;
@@ -50,7 +49,7 @@ CFSM* CFSM::addEvent(const std::string& eventName, const std::string& from, cons
 		cocos2d::log("FSM::addEvent: from state %s does not exit:" ,from.c_str());
 		return nullptr;
 	}
-	if (isContainState(to))
+	if (!isContainState(to))
 	{
 		cocos2d::log("FSM::addEvent: to state %s does not exit:" , to.c_str());
 		return nullptr;

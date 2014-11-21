@@ -51,8 +51,15 @@ bool CPlayer::iniWithPlayerTyer(PlayerType type)
 	std::string animationNames[] = { "walk", "attack", "dead", "hit", "skill" };
 	m_animationNames.assign(animationNames, animationNames + 5);
 	this->addAnimation();
+
+	initFSM();
+
+	m_progess = CProgress::create("small-enemy-progress-bg.png", "small-enemy-progress-fill.png");
+	m_progess->setPosition(200, 200);
+	this->addChild(m_progess);
 	return true;
 } 
+
 void CPlayer::addAnimation()
 {
 	auto animation  = AnimationCache::getInstance()->getAnimation(String::createWithFormat("%s-%s", m_name.c_str(), m_animationNames[0])->getCString());
@@ -103,34 +110,118 @@ CPlayer* CPlayer::create(PlayerType type)
 		return NULL;
 	}
 }
+void CPlayer::initFSM()
+{
+	std::string strtmp("idle");
+	m_fsm = CFSM::create(strtmp);
+	m_fsm->retain();
+	auto onIdle = [&]()
+	{
+		cocos2d::log("onIdle: Enter idle");
+		this->stopActionByTag(WALKING);
+		auto sfName = String::createWithFormat("%s-1-1.png", m_name.c_str());
+		auto spriteName = SpriteFrameCache::getInstance()->getSpriteFrameByName(sfName->getCString());
+		this->setSpriteFrame(spriteName);
+	};
+	m_fsm->setOnEnter("idle", onIdle);
+
+	auto onAttacking = [&]()
+	{
+		cocos2d::log("onAttacking: Enter Attacking");
+		auto animate = this->getAnimateByType(ATTACKING); 
+		auto func = [&]()
+		{
+			this->m_fsm->doEvent("stop");
+		};
+		auto callback = CallFunc::create(func);
+		auto seq = Sequence::create(animate, callback, nullptr);
+		this->runAction(seq);
+	};
+	m_fsm->setOnEnter("attacking", onAttacking);
+
+	auto onBeingHit = [&]()
+	{
+		cocos2d::log("onBeingHit: OnEnter");
+		auto animate = this->getAnimateByType(BEINGHIT);
+		auto func = [&]()
+		{
+			this->m_fsm->doEvent("stop");
+		};
+		auto wait = DelayTime::create(0.6f);
+		auto callback = CallFunc::create(func);
+		auto seq = Sequence::create(wait, animate, callback, nullptr);
+		this->runAction(seq);
+	};
+	m_fsm->setOnEnter("beinghit", onBeingHit);
+
+	auto onDead = [&]()
+	{
+		this->setCanAttack(false);
+		cocos2d::log("onDead: Enter Dead");
+		auto animate = getAnimateByType(DEAD);
+		auto func = [&]()
+		{
+			cocos2d::log("a charactor died");
+			cocos2d::NotificationCenter::getInstance()->postNotification("enemyDead", this);
+			this->removeFromParentAndCleanup(true); 
+		};
+		auto blink = cocos2d::Blink::create(3, 5);
+		auto callback = CallFunc::create(func);
+		auto seq = Sequence::create(animate, blink, callback, nullptr);
+		this->stopAllActions();
+		this->runAction(seq);
+		m_progess->setVisible(false);
+	};
+	m_fsm->setOnEnter("dead", onDead);
+}
 void CPlayer::walkTo(cocos2d::Vec2& dest)
 {
-	//stop current moving action, if any
-	if (m_seq)
-	{
-		this->stopAction(m_seq);
-	}
+	std::function<void()> onWalk = CC_CALLBACK_0(CPlayer::OnWalk, this, dest);
+	m_fsm->setOnEnter("walking", onWalk);
+	m_fsm->doEvent("walk");
+}
+void CPlayer::OnWalk(cocos2d::Vec2& dest)
+{
+	cocos2d::log("onIdle: Enter walk");
+	this->stopActionByTag(WALKTO_TAG);
 	auto& curPos = this->getPosition();
-	//flip when moving backward
-	if (curPos.x > dest.x)
+
+	if (curPos.x  > dest.x)
+	{
 		this->setFlippedX(true);
+	}
 	else
+	{
 		this->setFlippedX(false);
+	}
 	
-	//calculate the time needed to move
 	auto& diff = dest - curPos;
 	auto time = diff.getLength() / m_speed;
 	auto move = MoveTo::create(time, dest);
-	//lambda function
 	auto func = [&]()
 	{
-		this->stopAllActions();
-		m_seq = nullptr;
+		m_fsm->doEvent("stop");
 	};
 	auto callback = CallFunc::create(func);
-	m_seq = Sequence::create(move, callback, nullptr);
-	this->runAction(m_seq);
+	auto seq = Sequence::create(move, callback, nullptr);
+	seq->setTag(WALKTO_TAG);
+	this->runAction(seq);
 	this->PlayAnimationForever(0);
+}
+
+Animate* CPlayer::getAnimateByType(CPlayer::AnimationType type)
+{
+	if (type < 0 || type >= m_animationNum)
+	{
+		cocos2d::log("illegal animation index!");
+		return nullptr;
+	}
+
+	auto str = String::createWithFormat("%s-%s", m_name.c_str(), m_animationNames[type].c_str())->getCString();
+	auto animation = AnimationCache::getInstance()->getAnimation(str);
+	auto animate = Animate::create(animation);
+	animate->setTag(type);
+	return animate;
 }
 
 CPlayer* CPlayer::m_ptrInstance = NULL;
