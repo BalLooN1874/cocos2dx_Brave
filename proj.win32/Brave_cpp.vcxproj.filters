@@ -19,6 +19,7 @@
     <ClCompile Include="..\Classes\HelloWorldScene.cpp" />
     <ClCompile Include="..\Classes\Player.cpp" />
     <ClCompile Include="..\Classes\FSM.cpp" />
+    <ClCompile Include="..\Classes\Progress.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -28,6 +29,7 @@
     <ClInclude Include="..\Classes\HelloWorldScene.h" />
     <ClInclude Include="..\Classes\Player.h" />
     <ClInclude Include="..\Classes\FSM.h" />
+    <ClInclude Include="..\Classes\Progress.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="game.rc">
