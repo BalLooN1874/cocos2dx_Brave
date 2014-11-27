@@ -3,6 +3,7 @@
 #include <functional>
 USING_NS_CC;
 
+//×´Ì¬»úÀà
 class CFSM : public cocos2d::Ref
 {
 public:

@@ -15,8 +15,8 @@ CPlayer::~CPlayer()
 	}
 }
 
-
-bool CPlayer::iniWithPlayerTyer(PlayerType type)
+//初始化
+bool CPlayer::iniWithPlayerType(PlayerType type)
 {
 	std::string spName = "";
 	m_type = type;
@@ -60,6 +60,8 @@ bool CPlayer::iniWithPlayerTyer(PlayerType type)
 	return true;
 } 
 
+
+//添加动画
 void CPlayer::addAnimation()
 {
 	auto animation  = AnimationCache::getInstance()->getAnimation(String::createWithFormat("%s-%s", m_name.c_str(), m_animationNames[0])->getCString());
@@ -83,6 +85,7 @@ void CPlayer::addAnimation()
 	}
 }
 
+//播放特效
 void CPlayer::PlayAnimationForever(int index)
 {
 	if (index < 0 || index >= m_animationNum)
@@ -95,10 +98,11 @@ void CPlayer::PlayAnimationForever(int index)
 	auto animate = Animate::create(animation);
 	this->runAction(RepeatForever::create(animate));
 }
+
 CPlayer* CPlayer::create(PlayerType type)
 {
 	CPlayer* ptrPlayer = new CPlayer();
-	if (ptrPlayer && ptrPlayer->iniWithPlayerTyer(type))
+	if (ptrPlayer && ptrPlayer->iniWithPlayerType(type))
 	{
 		ptrPlayer->autorelease();
 		return ptrPlayer; 
@@ -110,6 +114,8 @@ CPlayer* CPlayer::create(PlayerType type)
 		return NULL;
 	}
 }
+
+//初始化状态机
 void CPlayer::initFSM()
 {
 	std::string strtmp("idle");
@@ -174,12 +180,14 @@ void CPlayer::initFSM()
 	};
 	m_fsm->setOnEnter("dead", onDead);
 }
+
 void CPlayer::walkTo(cocos2d::Vec2& dest)
 {
 	std::function<void()> onWalk = CC_CALLBACK_0(CPlayer::OnWalk, this, dest);
 	m_fsm->setOnEnter("walking", onWalk);
 	m_fsm->doEvent("walk");
 }
+
 void CPlayer::OnWalk(cocos2d::Vec2& dest)
 {
 	cocos2d::log("onIdle: Enter walk");
@@ -224,6 +232,7 @@ Animate* CPlayer::getAnimateByType(CPlayer::AnimationType type)
 	return animate;
 }
 
+//单例
 CPlayer* CPlayer::m_ptrInstance = NULL;
 CPlayer* CPlayer::getInstance()
 {

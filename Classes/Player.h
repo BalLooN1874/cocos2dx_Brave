@@ -34,7 +34,7 @@ public:
 	};
 
 public:
-	bool iniWithPlayerTyer(PlayerType type);
+	bool iniWithPlayerType(PlayerType type);
 	void addAnimation();
 	void PlayAnimationForever(int index);
 	void walkTo(cocos2d::Vec2& dest);

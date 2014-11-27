@@ -3,6 +3,7 @@
 
 USING_NS_CC;
 
+//ÑªÌõÀà
 class CProgress : public cocos2d::Sprite
 {
 public:
